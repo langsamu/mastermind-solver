@@ -1,9 +1,9 @@
 window.addEventListener("load", load);
 
 var colors = ["red", "green", "blue", "white", "black", "yellow", "brown", "orange"];
-var rowLength = 3;
-var colorLength = 8;
-var solution = randomRow();
+var rowLength = 4;
+var colorLength = 4;
+var solution = randomRow(rowLength,colorLength);
 var board = [];
 
 function load() {
@@ -14,25 +14,46 @@ function load() {
 
     drawRow(solutionElement, solution);
 
-    var done = false;
-    while (!done) {
-        var row = randomRow();
+    var max = Math.pow(colorLength, rowLength);
+    for (var i = 0; i < max; i++) {
+        var row = numberedRow(i, rowLength, colorLength);
         board.push(row);
 
         var rowsElement = document.querySelector(".rows");
         var rowElement = drawRow(rowsElement, row);
         var rowScore = scoreRow(row, solution);
+
         drawScore(rowElement, rowScore);
 
-        done = rowScore.position === rowLength;
+        if (rowScore.position === rowLength) {
+            break;
+        }
     }
 }
 
-function randomBoard() {
+function numberedRow(i, length, base) {
+    var numberString = i.toString(base);
+    var padded = padLeft(numberString, length, "0");
+    var stringArray = padded.split("");
+
+    return stringArray.map(function (character) {
+        return parseInt(character, base);
+    });
+}
+
+function padLeft(original, targetLength, padString) {
+    var arrayOfLength = new Array(targetLength + 1);
+    var stringOfLength = arrayOfLength.join(padString);
+    var tooLongString = stringOfLength + original;
+
+    return tooLongString.slice(-targetLength)
+}
+
+function randomBoard(length, rowLength, colorLength) {
     var board = [];
 
-    for (var i = 0; i < 50; i++) {
-        var row = randomRow();
+    for (var i = 0; i < length; i++) {
+        var row = randomRow(rowLength, colorLength);
 
         board.push(row);
     }
@@ -40,18 +61,20 @@ function randomBoard() {
     return board;
 }
 
-function randomRow() {
+function randomRow(length, colorLength) {
     var row = [];
 
-    for (var i = 0; i < rowLength; i++) {
-        row.push(randomCell());
+    for (var i = 0; i < length; i++) {
+        var cell = randomCell(colorLength);
+
+        row.push(cell);
     }
 
     return row;
 }
 
-function randomCell() {
-    return Math.floor(Math.random() * colorLength);
+function randomCell(length) {
+    return Math.floor(Math.random() * length);
 }
 
 function drawScore(row, score) {
