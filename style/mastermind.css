@@ -1,9 +1,9 @@
-@import "color/black-white.css";
-/*@import "color/classic.css";*/
+/*@import "color/black-white.css";*/
+@import "color/classic.css";
 /*@import "color/red-blue.css";*/
 
-/*@import "layout/grid.css";*/
-@import "layout/raw.css";
+@import "layout/grid.css";
+/*@import "layout/raw.css";*/
 
 body {
     margin: 0;

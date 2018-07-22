@@ -15,7 +15,7 @@
 }
 
 .cell[data-color="1"] {
-    background: green;
+    background: yellow;
 }
 
 .cell[data-color="2"] {
@@ -23,21 +23,21 @@
 }
 
 .cell[data-color="3"] {
-    background: white;
+    background: orange;
 }
 
 .cell[data-color="4"] {
-    background: black;
+    background: white;
 }
 
 .cell[data-color="5"] {
-    background: yellow;
+    background: black;
 }
 
 .cell[data-color="6"] {
-    background: brown;
+    background: green;
 }
 
 .cell[data-color="7"] {
-    background: orange;
+    background: brown;
 }
