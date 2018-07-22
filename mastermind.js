@@ -1,24 +1,31 @@
 window.addEventListener("load", load);
 
 var colors = ["red", "green", "blue", "white", "black", "yellow", "brown", "orange"];
+var rowLength = 3;
+var colorLength = 8;
 var solution = randomRow();
-var board = randomBoard();
+var board = [];
 
 function load() {
-    drawBoard(board);
+    var boardElement = drawBoard(board);
 
-    var boardElement = document.querySelector(".board");
     var solutionElement = element("solution");
     boardElement.insertBefore(solutionElement, boardElement.firstElementChild);
 
     drawRow(solutionElement, solution);
 
-    var rows = document.querySelectorAll(".rows .row");
-    rows.forEach(function (rowElement) {
-        var rowScore = scoreRow(rowElement.row, solution);
+    var done = false;
+    while (!done) {
+        var row = randomRow();
+        board.push(row);
 
+        var rowsElement = document.querySelector(".rows");
+        var rowElement = drawRow(rowsElement, row);
+        var rowScore = scoreRow(row, solution);
         drawScore(rowElement, rowScore);
-    });
+
+        done = rowScore.position === rowLength;
+    }
 }
 
 function randomBoard() {
@@ -35,11 +42,16 @@ function randomBoard() {
 
 function randomRow() {
     var row = [];
-    for (var i = 0; i < 5; i++) {
-        var cell = Math.floor(Math.random() * colors.length);
-        row.push(cell);
+
+    for (var i = 0; i < rowLength; i++) {
+        row.push(randomCell());
     }
+
     return row;
+}
+
+function randomCell() {
+    return Math.floor(Math.random() * colorLength);
 }
 
 function drawScore(row, score) {
@@ -52,6 +64,8 @@ function drawScore(row, score) {
     for (var i = 0; i < score.position; i++) {
         var positionElement = element("position", scoreElement);
     }
+
+    return scoreElement;
 }
 
 function scoreRow(row, solution) {
@@ -90,6 +104,8 @@ function drawBoard(board) {
     board.forEach(function (row) {
         drawRow(rowsElement, row);
     });
+
+    return boardElement;
 }
 
 function drawRow(parent, row) {
@@ -103,6 +119,8 @@ function drawRow(parent, row) {
 
         drawCell(cellsElement, color);
     });
+
+    return rowElement;
 }
 
 function drawCell(rowElement, color) {
