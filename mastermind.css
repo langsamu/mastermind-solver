@@ -20,7 +20,7 @@ body {
         outline: 3px solid yellow;
     }
 
-.color, .position, .score, .cells, .cell {
+.color, .position, .score, .score div, .cells, .cell {
     display: inline-block;
 }
 

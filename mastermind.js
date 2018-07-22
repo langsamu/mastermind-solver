@@ -1,16 +1,71 @@
 ﻿window.addEventListener("load", load);
 
+const mapping = {
+    "rowPushed": rowPushed,
+    "thesis": thesis
+};
+
+let queue = [];
+
+const w = new Worker("worker.js");
+w.onmessage = function (e) {
+    if (document.body.dataset.x === "true") {
+        queue.push(e.data);
+    } else {
+        mapping[e.data.name].apply(this, e.data.payload);
+    }
+};
+
+function process() {
+    if (document.body.dataset.x === "true") {
+        console.log("process");
+        requestAnimationFrame(process);
+
+        const message = queue.shift();
+        if (message) {
+            mapping[message.name].apply(this, message.payload);
+        }
+
+    }
+}
+
+function rowPushed(row) {
+    if (fake) {
+        fake.remove();
+        fake = undefined;
+    } else { }
+
+    drawRow(document.querySelector(".rows"), row);
+}
+
+let fake;
+function thesis(row) {
+    if (fake) {
+        var a = fake.childNodes[0].childNodes;
+        var b = fake.childNodes[1].childNodes;
+        for (var i = 0; i < rowLength; i++) {
+            a[i].dataset.color = row.cells[i];
+
+            if (i < row.score.color) {
+                b[i].className = "color";
+            } else if (i - row.score.color < row.score.position) {
+                b[i].className = "position";
+            } else {
+                b[i].className = "";
+            }
+        }
+    } else {
+        fake = drawRow(document.querySelector(".rows"), row);
+    }
+}
+
 function load() {
     initializeControls();
     //initializeGame();
 }
 
-function log(message) {
-    var logElement = document.getElementById("log");
-    logElement.textContent += message + "\n";
-    logElement.scrollTop = logElement.scrollHeight;
-}
-
+var rowLength = 5;
+var colorLength = 8;
 function initializeControls() {
     var buttons = document.querySelectorAll("button.dynamic");
     buttons.forEach(function (button) {
@@ -22,6 +77,44 @@ function initializeControls() {
         selector.addEventListener("change", dynamicSelectorChanged);
         selector.dispatchEvent(new Event("change"));
     });
+
+    var checks = document.querySelectorAll("input.dynamic");
+    checks.forEach(function (selector) {
+        selector.addEventListener("change", dynamicCheckboxChanged);
+        selector.dispatchEvent(new Event("change"));
+    });
+}
+function initializeGame() {
+    process();
+    clearBoard();
+    queue = [];
+
+    var solution = randomRow(rowLength, colorLength);
+    //var solution = [1, 6, 0, 7, 6]; // Bence 20170123T2054
+    //var solution = [6, 7, 3, 3, 2]; // Bence 20170130T1005
+    //var solution = [7, 6, 5, 4, 3];
+    //var solution = [0, 1, 2, 3, 4];
+    //var solution = [3, 4, 5, 6, 7];
+    //var solution = [7, 7, 7, 7, 6];
+
+    var board = [];
+
+    w.postMessage({
+        name: "solveConstructive",
+        payload: [board, solution, colorLength, rowLength]
+    });
+    //solveConstructive(board, solution, colorLength, rowLength);
+
+    var gameElement = document.getElementById("game");
+    var boardElement = drawBoard(gameElement, board);
+
+    var solutionElement = drawElement(null, "solution");
+    boardElement.insertBefore(solutionElement, boardElement.firstElementChild);
+
+    drawRow(solutionElement, { cells: solution });
+
+    //solveSerial(board, solution, colorLength, rowLength);
+    //solveRandom(board, solution, colorLength, rowLength);
 }
 
 function dynamicButtonClicked(e) {
@@ -31,7 +124,6 @@ function dynamicButtonClicked(e) {
 
     handler.call(e);
 }
-
 function dynamicSelectorChanged(e) {
     var selector = e.target;
     var value = selector.value;
@@ -39,171 +131,13 @@ function dynamicSelectorChanged(e) {
 
     document.body.dataset[name] = value;
 }
+function dynamicCheckboxChanged(e) {
+    var selector = e.target;
+    var value = selector.checked;
+    var name = selector.dataset.name;
 
-function initializeGame() {
-    clearBoard();
-    clearLog();
-
-
-    var rowLength = 5;
-    var colorLength = 8;
-    var solution = randomRow(rowLength, colorLength);
-
-    var board = [];
-    window.board = board;
-
-    var boardElement = drawBoard(board);
-
-    var solutionElement = element("solution");
-    boardElement.insertBefore(solutionElement, boardElement.firstElementChild);
-
-    drawRow(solutionElement, solution);
-
-    solveConstructive(board, solution, colorLength, rowLength);
-    //solveSerial(board, solution, colorLength, rowLength);
-    //solveRandom(board, solution, colorLength, rowLength);
-}
-
-function clearLog() {
-    var logElement = document.getElementById("log");
-    logElement.textContent = "";
-
-}
-
-function clearBoard() {
-    var board = document.querySelector(".board");
-    if (board) {
-        board.remove();
-    }
-
-}
-
-function solveConstructive(board, solution, colorLength, rowLength) {
-    var thesis = [];
-
-    do {
-
-        createThesis(thesis, rowLength, colorLength, board);
-
-        var row = createAndScore(board, thesis, solution);
-
-        log("add [" + thesis + "] → [" + row.score.color + "," + row.score.position + "]");
-
-    } while (row.score.position !== rowLength);
-}
-
-function createThesis(thesis, rowLength, colorLength, board) {
-    do {
-        if (thesis.length === rowLength) {
-            increment(thesis, colorLength);
-        } else {
-            thesis.push(0);
-        }
-
-        while (contradicts(thesis, board)) {
-            increment(thesis, colorLength);
-        }
-    } while (thesis.length < rowLength);
-}
-
-function increment(thesis, colorLength) {
-    while (thesis[thesis.length - 1] === colorLength - 1) {
-        thesis.pop();
-    }
-
-    if (!thesis.length) {
-        throw "Got to end of number space (increment wrap-around)";
-    }
-
-    thesis[thesis.length - 1]++;
-}
-
-function contradicts(thesis, board) {
-    // are there rows with no matches that have any of my colors?
-    var a = function () {
-        thesis.forEach(function (cell) {
-            var results = board.filter(function (row) {
-                return row.score.color === 0 && row.score.position === 0;
-            }).filter(function (row) {
-                return row.cells.indexOf(cell) !== -1;
-            });
-
-            if (results.length) {
-                contradiction = true;
-                return;
-            }
-        });
-    };
-
-    // are there rows with any of my cells in the same position with no position match?
-    var b = function () {
-        thesis.forEach(function (cell, i) {
-            var results = board.filter(function (row) {
-                return row.cells[i] === cell;
-            }).filter(function (row) {
-                return row.score.position === 0;
-            });
-
-            if (results.length) {
-                contradiction = true;
-                return;
-            }
-        });
-    };
-
-    // are there rows where the number of cells in same position is greater than the number of position matches?
-    var c = function () {
-        var results = board.filter(function (row) {
-            var numberOfPositionMatches = row.cells.filter(function (cell, i) {
-                return cell === thesis[i];
-            }).length;
-
-            return row.score.position < numberOfPositionMatches; //TODO: this is lt when partial thesis, eq when full
-        });
-
-        if (results.length) {
-            return true;
-        }
-    };
-
-    // are there rows where the number of cells with same color is greater than the number of color matches?
-    var d = function () {
-        var results = board.filter(function (row) {
-            var rowClone = Array.from(row.cells);
-
-            var numberOfColorMatches = thesis.filter(function (cell) {
-                var position = rowClone.indexOf(cell);
-                if (position !== -1) {
-                    rowClone[position] = NaN;
-
-                    return true;
-                }
-            }).length;
-
-            var matches = row.score.color + row.score.position;
-
-            return matches < numberOfColorMatches; //TODO: this is lt when partial thesis, eq when full
-        });
-
-        if (results.length) {
-            return true;
-        }
-    };
-
-
-    //a();
-    //b();
-    if (c()) {
-        log("con [" + thesis + "] (C)");
-        return true;
-    }
-
-    if (d()) {
-        log("con [" + thesis + "] (D)");
-        return true;
-    }
-
-    return false;
+    document.body.dataset[name] = value;
+    console.log(value);
 }
 
 function solveSerial(board, solution, colorLength, rowLength) {
@@ -219,7 +153,6 @@ function solveSerial(board, solution, colorLength, rowLength) {
         }
     }
 }
-
 function solveRandom(board, solution, colorLength, rowLength) {
     var done = false;
     while (!done) {
@@ -231,21 +164,7 @@ function solveRandom(board, solution, colorLength, rowLength) {
     }
 }
 
-function createAndScore(board, row, solution) {
-    var rowObject = { cells: Array.from(row) };
 
-    var rowsElement = document.querySelector(".rows");
-    var rowElement = drawRow(rowsElement, rowObject.cells);
-    rowObject.score = scoreRow(rowObject.cells, solution);
-
-    board.push(rowObject);
-
-    drawScore(rowElement, rowObject.score);
-
-    rowElement.scrollIntoView();
-
-    return rowObject;
-}
 
 function numberedRow(i, length, base) {
     var numberString = i.toString(base);
@@ -256,7 +175,6 @@ function numberedRow(i, length, base) {
         return parseInt(character, base);
     });
 }
-
 function padLeft(original, targetLength, padString) {
     var arrayOfLength = new Array(targetLength + 1);
     var stringOfLength = arrayOfLength.join(padString);
@@ -276,7 +194,6 @@ function randomBoard(length, rowLength, colorLength) {
 
     return board;
 }
-
 function randomRow(length, colorLength) {
     var row = [];
 
@@ -288,60 +205,13 @@ function randomRow(length, colorLength) {
 
     return row;
 }
-
 function randomCell(length) {
     return Math.floor(Math.random() * length);
 }
 
-function drawScore(row, score) {
-    var scoreElement = element("score", row);
-
-    for (var i = 0; i < score.color; i++) {
-        var positionElement = element("color", scoreElement);
-    }
-
-    for (var i = 0; i < score.position; i++) {
-        var positionElement = element("position", scoreElement);
-    }
-
-    return scoreElement;
-}
-
-function scoreRow(row, solution) {
-    var correctColor = 0;
-    var correctPosition = 0;
-    var solutionClone = Array.from(solution);
-    var rowClone = Array.from(row);
-
-    rowClone.forEach(function (cell, i) {
-        if (solutionClone[i] === cell) {
-            solutionClone[i] = NaN;
-            rowClone[i] = NaN;
-
-            correctPosition++;
-        }
-    });
-
-    rowClone.forEach(function (cell, i) {
-        if (solutionClone.indexOf(cell) !== -1) {
-            solutionClone[solutionClone.indexOf(cell)] = NaN;
-
-            correctColor++;
-        }
-    });
-
-    return {
-        color: correctColor,
-        position: correctPosition
-    };
-}
-
-function drawBoard(board) {
-    var gameElement = document.getElementById("game");
-    var boardElement = element("board", gameElement);
-    boardElement.board = board;
-
-    var rowsElement = element("rows", boardElement);
+function drawBoard(parentElement, board) {
+    var boardElement = drawElement(parentElement, "board");
+    var rowsElement = drawElement(boardElement, "rows");
 
     board.forEach(function (row) {
         drawRow(rowsElement, row);
@@ -349,34 +219,58 @@ function drawBoard(board) {
 
     return boardElement;
 }
+function drawRow(parentElement, row) {
+    var rowElement = drawElement(parentElement, "row");
+    var cellsElement = drawElement(rowElement, "cells");
 
-function drawRow(parent, row) {
-    var rowElement = element("row", parent);
-    rowElement.dataset.row = row;
+    for (var i = 0; i < rowLength; i++) {
+        drawCell(cellsElement, row.cells[i]);
+    }
 
-    var cellsElement = element("cells", rowElement);
-
-    row.forEach(function (cell) {
-        drawCell(cellsElement, cell);
-    });
+    if (row.score) {
+        drawScore(rowElement, row.score);
+    }
 
     return rowElement;
 }
+function drawScore(parentElement, score) {
+    var scoreElement = drawElement(parentElement, "score");
 
-function drawCell(rowElement, cell) {
-    var cellElement = element("cell", rowElement);
-
-    cellElement.dataset.color = cell;
-}
-
-function element(className, parent) {
-    var result = document.createElement("div");
-
-    if (parent) {
-        parent.appendChild(result);
+    for (var i = 0; i < rowLength; i++) {
+        if (i < score.color) {
+            drawElement(scoreElement, "color");
+        } else if (i - score.color < score.position) {
+            drawElement(scoreElement, "position");
+        } else {
+            drawElement(scoreElement);
+        }
     }
 
-    result.className = className;
+    return scoreElement;
+}
+function drawCell(parentElement, cell) {
+    var cellElement = drawElement(parentElement, "cell");
 
-    return result;
+    if (cell !== undefined) cellElement.dataset.color = cell;
+}
+function drawElement(parentElement, className) {
+    var resultElement = document.createElement("div");
+
+    if (parentElement) {
+        parentElement.appendChild(resultElement);
+    }
+
+    if (className) {
+        resultElement.className = className;
+    }
+
+    return resultElement;
+}
+
+function clearBoard() {
+    var boardElement = document.querySelector(".board");
+
+    if (boardElement) {
+        boardElement.remove();
+    }
 }
