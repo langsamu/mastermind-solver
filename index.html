@@ -1,8 +1,48 @@
 <html>
 <head>
-    <link rel="stylesheet" href="style/mastermind.css" />
+    <link rel="stylesheet" href="mastermind.css" />
     <script src="mastermind.js"></script>
 </head>
 <body>
+    <div id="controls">
+        <div>
+            <button id="runButton" class="dynamic" data-name="initializeGame">Run</button>
+        </div>
+        <div>
+            <label for="colorSelector">Color scheme</label>
+            <select id="colorSelector" class="dynamic" data-name="color">
+                <option value="classic">Classic</option>
+                <option value="red-blue">Red & blue</option>
+                <option value="black-white">Black & white</option>
+                <option value="stripes">Stripes</option>
+                <option value="stripes-h">Horizontal stripes</option>
+                <option value="numbers">Numbers</option>
+            </select>
+        </div>
+        <div>
+            <label for="layoutSelector">Layout</label>
+            <select id="layoutSelector" class="dynamic" data-name="layout">
+                <option value="classic">Classic</option>
+                <option value="raw">Raw</option>
+            </select>
+        </div>
+        <div>
+            <div class="row">
+                <div class="cells" style="border: none; padding: 0">
+                    <div class="cell" data-color="0" style="margin: 0; border: 1px solid white"></div>
+                    <div class="cell" data-color="1" style="margin: 0; border: 1px solid white"></div>
+                    <div class="cell" data-color="2" style="margin: 0; border: 1px solid white"></div>
+                    <div class="cell" data-color="3" style="margin: 0; border: 1px solid white"></div>
+                    <div class="cell" data-color="4" style="margin: 0; border: 1px solid white"></div>
+                    <div class="cell" data-color="5" style="margin: 0; border: 1px solid white"></div>
+                    <div class="cell" data-color="6" style="margin: 0; border: 1px solid white"></div>
+                    <div class="cell" data-color="7" style="margin: 0; border: 1px solid white"></div>
+                </div>
+
+            </div>
+        </div>
+        <div id="log" style="overflow:auto;max-height:300px;max-width: 400px; background:white;color:black;font-family:monospace;text-align:left;padding:10px;white-space:pre-line"></div>
+    </div>
+    <div id="game"></div>
 </body>
 </html>

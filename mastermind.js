@@ -1,6 +1,50 @@
-window.addEventListener("load", load);
+﻿window.addEventListener("load", load);
 
 function load() {
+    initializeControls();
+    //initializeGame();
+}
+
+function log(message) {
+    var logElement = document.getElementById("log");
+    logElement.textContent += message + "\n";
+    logElement.scrollTop = logElement.scrollHeight;
+}
+
+function initializeControls() {
+    var buttons = document.querySelectorAll("button.dynamic");
+    buttons.forEach(function (button) {
+        button.addEventListener("click", dynamicButtonClicked);
+    });
+
+    var selectors = document.querySelectorAll("select.dynamic");
+    selectors.forEach(function (selector) {
+        selector.addEventListener("change", dynamicSelectorChanged);
+        selector.dispatchEvent(new Event("change"));
+    });
+}
+
+function dynamicButtonClicked(e) {
+    var button = e.target;
+    var name = button.dataset.name;
+    var handler = window[name];
+
+    handler.call(e);
+}
+
+function dynamicSelectorChanged(e) {
+    var selector = e.target;
+    var value = selector.value;
+    var name = selector.dataset.name;
+
+    document.body.dataset[name] = value;
+}
+
+function initializeGame() {
+    clearBoard();
+    clearLog();
+
+
     var rowLength = 5;
     var colorLength = 8;
     var solution = randomRow(rowLength, colorLength);
@@ -20,6 +64,20 @@ function load() {
     //solveRandom(board, solution, colorLength, rowLength);
 }
 
+function clearLog() {
+    var logElement = document.getElementById("log");
+    logElement.textContent = "";
+
+}
+
+function clearBoard() {
+    var board = document.querySelector(".board");
+    if (board) {
+        board.remove();
+    }
+
+}
+
 function solveConstructive(board, solution, colorLength, rowLength) {
     var thesis = [];
 
@@ -28,6 +86,9 @@ function solveConstructive(board, solution, colorLength, rowLength) {
         createThesis(thesis, rowLength, colorLength, board);
 
         var row = createAndScore(board, thesis, solution);
+
+        log("add [" + thesis + "] → [" + row.score.color + "," + row.score.position + "]");
+
     } while (row.score.position !== rowLength);
 }
 
@@ -58,8 +119,6 @@ function increment(thesis, colorLength) {
 }
 
 function contradicts(thesis, board) {
-    var contradiction = false;
-
     // are there rows with no matches that have any of my colors?
     var a = function () {
         thesis.forEach(function (cell) {
@@ -99,12 +158,11 @@ function contradicts(thesis, board) {
                 return cell === thesis[i];
             }).length;
 
-            return row.score.position < numberOfPositionMatches;
+            return row.score.position < numberOfPositionMatches; //TODO: this is lt when partial thesis, eq when full
         });
 
         if (results.length) {
-            contradiction = true;
-            return;
+            return true;
         }
     };
 
@@ -124,22 +182,28 @@ function contradicts(thesis, board) {
 
             var matches = row.score.color + row.score.position;
 
-            return matches < numberOfColorMatches;
+            return matches < numberOfColorMatches; //TODO: this is lt when partial thesis, eq when full
         });
 
         if (results.length) {
-            contradiction = true;
-            return;
+            return true;
         }
     };
 
 
     //a();
     //b();
-    c();
-    d();
+    if (c()) {
+        log("con [" + thesis + "] (C)");
+        return true;
+    }
 
-    return contradiction;
+    if (d()) {
+        log("con [" + thesis + "] (D)");
+        return true;
+    }
+
+    return false;
 }
 
 function solveSerial(board, solution, colorLength, rowLength) {
@@ -273,7 +337,8 @@ function scoreRow(row, solution) {
 }
 
 function drawBoard(board) {
-    var boardElement = element("board", document.body);
+    var gameElement = document.getElementById("game");
+    var boardElement = element("board", gameElement);
     boardElement.board = board;
 
     var rowsElement = element("rows", boardElement);
