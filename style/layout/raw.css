@@ -1,0 +1,12 @@
+.color, .position {
+    border-radius: 50%;
+}
+
+.color, .position {
+    margin: 0 5px 5px 0;
+}
+
+.cells {
+    padding-right:10px;
+    margin-right:10px;
+}

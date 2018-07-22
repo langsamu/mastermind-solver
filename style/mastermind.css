@@ -1,0 +1,43 @@
+@import "color/black-white.css";
+/*@import "color/classic.css";*/
+/*@import "color/red-blue.css";*/
+
+/*@import "layout/grid.css";*/
+@import "layout/raw.css";
+
+body {
+    margin: 0;
+}
+
+.color, .position, .score, .cells, .cell {
+    display: inline-block;
+}
+
+    .score div {
+        width: 20px;
+        height: 20px;
+    }
+
+
+.board {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.rows {
+    overflow-y: auto;
+}
+
+.solution .row {
+    border-bottom: 4px solid;
+}
+
+.row .cells {
+    border-right: 1px solid;
+}
+
+    .row .cells .cell {
+        width: 30px;
+        height: 30px;
+    }

@@ -1,12 +1,11 @@
 window.addEventListener("load", load);
 
-var colors = ["red", "green", "blue", "white", "black", "yellow", "brown", "orange"];
-var rowLength = 4;
-var colorLength = 4;
-var solution = randomRow(rowLength,colorLength);
-var board = [];
-
 function load() {
+    var rowLength = 5;
+    var colorLength = 4;
+    var solution = randomRow(rowLength, colorLength);
+    var board = [];
+
     var boardElement = drawBoard(board);
 
     var solutionElement = element("solution");
@@ -15,8 +14,8 @@ function load() {
     drawRow(solutionElement, solution);
 
     var max = Math.pow(colorLength, rowLength);
-    for (var i = 0; i < max; i++) {
-        var row = numberedRow(i, rowLength, colorLength);
+    for (var rowNumber = 0; rowNumber < max; rowNumber++) {
+        var row = numberedRow(rowNumber, rowLength, colorLength);
         board.push(row);
 
         var rowsElement = document.querySelector(".rows");
@@ -24,6 +23,7 @@ function load() {
         var rowScore = scoreRow(row, solution);
 
         drawScore(rowElement, rowScore);
+        rowElement.scrollIntoView();
 
         if (rowScore.position === rowLength) {
             break;
@@ -133,23 +133,21 @@ function drawBoard(board) {
 
 function drawRow(parent, row) {
     var rowElement = element("row", parent);
-    rowElement.row = row;
+    rowElement.dataset.row = row;
 
     var cellsElement = element("cells", rowElement);
 
     row.forEach(function (cell) {
-        var color = colors[cell];
-
-        drawCell(cellsElement, color);
+        drawCell(cellsElement, cell);
     });
 
     return rowElement;
 }
 
-function drawCell(rowElement, color) {
+function drawCell(rowElement, cell) {
     var cellElement = element("cell", rowElement);
-    cellElement.color = color;
-    cellElement.style.backgroundColor = color;
+
+    cellElement.dataset.color = cell;
 }
 
 function element(className, parent) {
