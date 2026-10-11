@@ -18,7 +18,6 @@ w.onmessage = function (e) {
 
 function process() {
     if (document.body.dataset.x === "true") {
-        console.log("process");
         requestAnimationFrame(process);
 
         const message = queue.shift();
