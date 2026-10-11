@@ -1,8 +1,8 @@
 ﻿const mapping = { "solveConstructive": solveConstructive, "solveSerial": solveSerial, "solveRandom": solveRandom };
 
-this.onmessage = function (e) {
-    mapping[e.data.name].apply(this, e.data.payload);
-}
+self.onmessage = function (e) {
+    mapping[e.data.solver]([], e.data.solution, e.data.colorLength, e.data.rowLength);
+};
 
 function solveConstructive(board, solution, colorLength, rowLength) {
     const thesis = [0];
@@ -192,7 +192,7 @@ function incrementThesis(thesis, colorLength) {
     }
 
     if (!thesis.length) {
-        throw "Got to end of number space (increment wrap-around)";
+        throw new Error("Got to end of number space (increment wrap-around)");
     }
 
     thesis[thesis.length - 1]++;

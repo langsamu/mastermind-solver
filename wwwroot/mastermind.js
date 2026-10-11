@@ -1,4 +1,4 @@
-﻿window.addEventListener("load", load);
+﻿document.addEventListener("DOMContentLoaded", load);
 
 const mapping = {
     "rowPushed": rowPushed,
@@ -6,10 +6,11 @@ const mapping = {
 };
 
 let queue = [];
+let slowMotion = false;
 
 let w;
 function workerMessage(e) {
-    if (document.body.dataset.x === "true") {
+    if (slowMotion) {
         queue.push(e.data);
     } else {
         mapping[e.data.name].apply(this, e.data.payload);
@@ -19,7 +20,7 @@ function workerMessage(e) {
 let frame;
 function process() {
     cancelAnimationFrame(frame);
-    if (document.body.dataset.x === "true") {
+    if (slowMotion) {
         frame = requestAnimationFrame(process);
 
         const message = queue.shift();
@@ -113,10 +114,7 @@ function initializeGame(solver) {
 
     const board = [];
 
-    w.postMessage({
-        name: solver,
-        payload: [board, solution, colorLength, rowLength]
-    });
+    w.postMessage({ solver, solution, colorLength, rowLength });
     //solveConstructive(board, solution, colorLength, rowLength);
 
     const gameElement = document.getElementById("game");
@@ -138,7 +136,7 @@ function layoutChanged() {
     document.body.dataset.layout = document.getElementById("layoutSelector").value;
 }
 function slowMotionChanged() {
-    document.body.dataset.x = document.getElementById("slowMotionCheckbox").checked;
+    slowMotion = document.getElementById("slowMotionCheckbox").checked;
 }
 
 
