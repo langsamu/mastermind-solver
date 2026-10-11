@@ -1,1 +1,1 @@
-# [Mastermind solver](http://langsamu.net/mastermind/)
+# [Mastermind solver](https://langsamu.github.io/mastermind-solver/)
