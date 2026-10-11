@@ -16,9 +16,11 @@ function workerMessage(e) {
     }
 }
 
+let frame;
 function process() {
+    cancelAnimationFrame(frame);
     if (document.body.dataset.x === "true") {
-        requestAnimationFrame(process);
+        frame = requestAnimationFrame(process);
 
         const message = queue.shift();
         if (message) {
