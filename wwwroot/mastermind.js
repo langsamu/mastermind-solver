@@ -32,36 +32,36 @@ function process() {
 }
 
 function rowPushed(row) {
-    if (fake) {
-        fake.remove();
-        fake = undefined;
+    if (candidateRow) {
+        candidateRow.remove();
+        candidateRow = undefined;
     } else { }
 
     drawRow(document.querySelector(".rows"), row);
 }
 
-let fake;
+let candidateRow;
 function thesis(row) {
-    if (fake) {
-        const a = fake.childNodes[0].childNodes;
-        const b = fake.childNodes[1].childNodes;
+    if (candidateRow) {
+        const cells = candidateRow.childNodes[0].childNodes;
+        const pegs = candidateRow.childNodes[1].childNodes;
         for (let i = 0; i < rowLength; i++) {
             if (row.cells[i] === undefined) {
-                delete a[i].dataset.color;
+                delete cells[i].dataset.color;
             } else {
-                a[i].dataset.color = row.cells[i];
+                cells[i].dataset.color = row.cells[i];
             }
 
             if (i < row.score.color) {
-                b[i].className = "color";
+                pegs[i].className = "color";
             } else if (i - row.score.color < row.score.position) {
-                b[i].className = "position";
+                pegs[i].className = "position";
             } else {
-                b[i].className = "";
+                pegs[i].className = "";
             }
         }
     } else {
-        fake = drawRow(document.querySelector(".rows"), row);
+        candidateRow = drawRow(document.querySelector(".rows"), row);
     }
 }
 
@@ -102,7 +102,7 @@ function initializeGame(solver) {
     process();
     clearBoard();
     queue = [];
-    fake = undefined;
+    candidateRow = undefined;
 
     const solution = randomRow(rowLength, colorLength);
     //var solution = [1, 6, 0, 7, 6]; // Bence 20170123T2054
