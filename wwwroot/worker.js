@@ -1,4 +1,4 @@
-﻿const mapping = { "solveConstructive": solveConstructive };
+﻿const mapping = { "solveConstructive": solveConstructive, "solveSerial": solveSerial };
 
 this.onmessage = function (e) {
     mapping[e.data.name].apply(this, e.data.payload);
@@ -20,6 +20,47 @@ function solveConstructive(board, solution, colorLength, rowLength) {
         postMessage({ name: "rowPushed", payload: [row] });
 
     } while (row.score.position !== rowLength);
+}
+
+function solveSerial(board, solution, colorLength, rowLength) {
+    const max = Math.pow(colorLength, rowLength);
+
+    for (let rowNumber = 0; rowNumber < max; rowNumber++) {
+        const row = numberedRow(rowNumber, rowLength, colorLength);
+
+        const rowScore = createAndScore(board, row, solution);
+
+        if (rowScore.position === rowLength) {
+            break;
+        }
+    }
+}
+
+function createAndScore(board, cells, solution) {
+    const row = { cells: cells, score: scoreRow(cells, solution) };
+
+    board.push(row);
+
+    postMessage({ name: "rowPushed", payload: [row] });
+
+    return row.score;
+}
+
+function numberedRow(i, length, base) {
+    const numberString = i.toString(base);
+    const padded = padLeft(numberString, length, "0");
+    const stringArray = padded.split("");
+
+    return stringArray.map(function (character) {
+        return parseInt(character, base);
+    });
+}
+function padLeft(original, targetLength, padString) {
+    const arrayOfLength = new Array(targetLength + 1);
+    const stringOfLength = arrayOfLength.join(padString);
+    const tooLongString = stringOfLength + original;
+
+    return tooLongString.slice(-targetLength)
 }
 
 function getNextThesis(thesis, rowLength, colorLength, board) {

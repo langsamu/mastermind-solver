@@ -70,7 +70,12 @@ function load() {
 const rowLength = 5;
 const colorLength = 8;
 function initializeControls() {
-    document.getElementById("runButton").addEventListener("click", initializeGame);
+    document.getElementById("runButton").addEventListener("click", function () {
+        initializeGame("solveConstructive");
+    });
+    document.getElementById("runLinearButton").addEventListener("click", function () {
+        initializeGame("solveSerial");
+    });
 
     document.getElementById("colorSelector").addEventListener("change", colorChanged);
     colorChanged();
@@ -81,7 +86,7 @@ function initializeControls() {
     document.getElementById("slowMotionCheckbox").addEventListener("change", slowMotionChanged);
     slowMotionChanged();
 }
-function initializeGame() {
+function initializeGame(solver) {
     process();
     clearBoard();
     queue = [];
@@ -97,7 +102,7 @@ function initializeGame() {
     const board = [];
 
     w.postMessage({
-        name: "solveConstructive",
+        name: solver,
         payload: [board, solution, colorLength, rowLength]
     });
     //solveConstructive(board, solution, colorLength, rowLength);
@@ -124,19 +129,6 @@ function slowMotionChanged() {
     document.body.dataset.x = document.getElementById("slowMotionCheckbox").checked;
 }
 
-function solveSerial(board, solution, colorLength, rowLength) {
-    const max = Math.pow(colorLength, rowLength);
-
-    for (let rowNumber = 0; rowNumber < max; rowNumber++) {
-        const row = numberedRow(rowNumber, rowLength, colorLength);
-
-        const rowScore = createAndScore(board, row, solution);
-
-        if (rowScore.position === rowLength) {
-            break;
-        }
-    }
-}
 function solveRandom(board, solution, colorLength, rowLength) {
     let done = false;
     while (!done) {
@@ -150,22 +142,6 @@ function solveRandom(board, solution, colorLength, rowLength) {
 
 
 
-function numberedRow(i, length, base) {
-    const numberString = i.toString(base);
-    const padded = padLeft(numberString, length, "0");
-    const stringArray = padded.split("");
-
-    return stringArray.map(function (character) {
-        return parseInt(character, base);
-    });
-}
-function padLeft(original, targetLength, padString) {
-    const arrayOfLength = new Array(targetLength + 1);
-    const stringOfLength = arrayOfLength.join(padString);
-    const tooLongString = stringOfLength + original;
-
-    return tooLongString.slice(-targetLength)
-}
 
 function randomBoard(length, rowLength, colorLength) {
     const board = [];
