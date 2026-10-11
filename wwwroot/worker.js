@@ -5,12 +5,13 @@ this.onmessage = function (e) {
 }
 
 function solveConstructive(board, solution, colorLength, rowLength) {
-    var thesis = [0];
+    const thesis = [0];
+    let row;
 
     do {
         getNextThesis(thesis, rowLength, colorLength, board);
 
-        var row = { cells: thesis.slice() };
+        row = { cells: thesis.slice() };
 
         row.score = scoreRow(row.cells, solution);
 
@@ -36,12 +37,12 @@ function getNextThesis(thesis, rowLength, colorLength, board) {
 }
 
 function contradicts(thesis, board) {
-    for (var i = 0; i < board.length; i++) { // TODO: maybe iterate backwards? = No apparent difference
-        var row = board[i];
-        var cells = row.cells;
-        var actualScore = row.score;
+    for (let i = 0; i < board.length; i++) { // TODO: maybe iterate backwards? = No apparent difference
+        const row = board[i];
+        const cells = row.cells;
+        const actualScore = row.score;
 
-        var thesisScore = scoreRow(thesis, cells);
+        const thesisScore = scoreRow(thesis, cells);
         postMessage({ name: "thesis", payload: [{ cells: thesis, score: thesisScore }] });
 
         if (thesisScore.position > actualScore.position) { // TODO: take thesis length into consideration
@@ -73,10 +74,10 @@ function scoreRow(proposed, actual) {
     proposed = proposed.slice();
     actual = actual.slice();
 
-    var positionMatches = getPositionMatches(proposed, actual);
-    var colorMatches = getColorMatches(proposed, actual);
+    const positionMatches = getPositionMatches(proposed, actual);
+    const colorMatches = getColorMatches(proposed, actual);
 
-    var result = {
+    const result = {
         position: positionMatches,
         color: colorMatches
     };
@@ -85,11 +86,11 @@ function scoreRow(proposed, actual) {
 }
 
 function getPositionMatches(proposed, actual) {
-    var result = 0;
+    let result = 0;
 
-    for (var proposedPosition = 0; proposedPosition < proposed.length; proposedPosition++) {
-        var proposedCell = proposed[proposedPosition];
-        var actualCell = actual[proposedPosition];
+    for (let proposedPosition = 0; proposedPosition < proposed.length; proposedPosition++) {
+        const proposedCell = proposed[proposedPosition];
+        const actualCell = actual[proposedPosition];
 
         if (proposedCell === actualCell) {
             proposed[proposedPosition] = NaN;
@@ -103,11 +104,11 @@ function getPositionMatches(proposed, actual) {
 }
 
 function getColorMatches(proposed, actual) {
-    var result = 0;
+    let result = 0;
 
-    for (var proposedPosition = 0; proposedPosition < proposed.length; proposedPosition++) {
-        var proposedCell = proposed[proposedPosition];
-        var actualPosition = actual.indexOf(proposedCell);
+    for (let proposedPosition = 0; proposedPosition < proposed.length; proposedPosition++) {
+        const proposedCell = proposed[proposedPosition];
+        const actualPosition = actual.indexOf(proposedCell);
 
         if (actualPosition !== -1) {
             proposed[proposedPosition] = NaN;

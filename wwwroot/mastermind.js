@@ -40,9 +40,9 @@ function rowPushed(row) {
 let fake;
 function thesis(row) {
     if (fake) {
-        var a = fake.childNodes[0].childNodes;
-        var b = fake.childNodes[1].childNodes;
-        for (var i = 0; i < rowLength; i++) {
+        const a = fake.childNodes[0].childNodes;
+        const b = fake.childNodes[1].childNodes;
+        for (let i = 0; i < rowLength; i++) {
             if (row.cells[i] === undefined) {
                 delete a[i].dataset.color;
             } else {
@@ -67,8 +67,8 @@ function load() {
     //initializeGame();
 }
 
-var rowLength = 5;
-var colorLength = 8;
+const rowLength = 5;
+const colorLength = 8;
 function initializeControls() {
     document.getElementById("runButton").addEventListener("click", initializeGame);
 
@@ -86,7 +86,7 @@ function initializeGame() {
     clearBoard();
     queue = [];
 
-    var solution = randomRow(rowLength, colorLength);
+    const solution = randomRow(rowLength, colorLength);
     //var solution = [1, 6, 0, 7, 6]; // Bence 20170123T2054
     //var solution = [6, 7, 3, 3, 2]; // Bence 20170130T1005
     //var solution = [7, 6, 5, 4, 3];
@@ -94,7 +94,7 @@ function initializeGame() {
     //var solution = [3, 4, 5, 6, 7];
     //var solution = [7, 7, 7, 7, 6];
 
-    var board = [];
+    const board = [];
 
     w.postMessage({
         name: "solveConstructive",
@@ -102,10 +102,10 @@ function initializeGame() {
     });
     //solveConstructive(board, solution, colorLength, rowLength);
 
-    var gameElement = document.getElementById("game");
-    var boardElement = drawBoard(gameElement, board);
+    const gameElement = document.getElementById("game");
+    const boardElement = drawBoard(gameElement, board);
 
-    var solutionElement = drawElement(null, "solution");
+    const solutionElement = drawElement(null, "solution");
     boardElement.insertBefore(solutionElement, boardElement.firstElementChild);
 
     drawRow(solutionElement, { cells: solution });
@@ -125,12 +125,12 @@ function slowMotionChanged() {
 }
 
 function solveSerial(board, solution, colorLength, rowLength) {
-    var max = Math.pow(colorLength, rowLength);
+    const max = Math.pow(colorLength, rowLength);
 
-    for (var rowNumber = 0; rowNumber < max; rowNumber++) {
-        var row = numberedRow(rowNumber, rowLength, colorLength);
+    for (let rowNumber = 0; rowNumber < max; rowNumber++) {
+        const row = numberedRow(rowNumber, rowLength, colorLength);
 
-        var rowScore = createAndScore(board, row, solution);
+        const rowScore = createAndScore(board, row, solution);
 
         if (rowScore.position === rowLength) {
             break;
@@ -138,11 +138,11 @@ function solveSerial(board, solution, colorLength, rowLength) {
     }
 }
 function solveRandom(board, solution, colorLength, rowLength) {
-    var done = false;
+    let done = false;
     while (!done) {
-        var row = randomRow(rowLength, colorLength);
+        const row = randomRow(rowLength, colorLength);
 
-        var rowScore = createAndScore(board, row, solution);
+        const rowScore = createAndScore(board, row, solution);
 
         done = rowScore.position === rowLength;
     }
@@ -151,27 +151,27 @@ function solveRandom(board, solution, colorLength, rowLength) {
 
 
 function numberedRow(i, length, base) {
-    var numberString = i.toString(base);
-    var padded = padLeft(numberString, length, "0");
-    var stringArray = padded.split("");
+    const numberString = i.toString(base);
+    const padded = padLeft(numberString, length, "0");
+    const stringArray = padded.split("");
 
     return stringArray.map(function (character) {
         return parseInt(character, base);
     });
 }
 function padLeft(original, targetLength, padString) {
-    var arrayOfLength = new Array(targetLength + 1);
-    var stringOfLength = arrayOfLength.join(padString);
-    var tooLongString = stringOfLength + original;
+    const arrayOfLength = new Array(targetLength + 1);
+    const stringOfLength = arrayOfLength.join(padString);
+    const tooLongString = stringOfLength + original;
 
     return tooLongString.slice(-targetLength)
 }
 
 function randomBoard(length, rowLength, colorLength) {
-    var board = [];
+    const board = [];
 
-    for (var i = 0; i < length; i++) {
-        var row = randomRow(rowLength, colorLength);
+    for (let i = 0; i < length; i++) {
+        const row = randomRow(rowLength, colorLength);
 
         board.push(row);
     }
@@ -179,10 +179,10 @@ function randomBoard(length, rowLength, colorLength) {
     return board;
 }
 function randomRow(length, colorLength) {
-    var row = [];
+    const row = [];
 
-    for (var i = 0; i < length; i++) {
-        var cell = randomCell(colorLength);
+    for (let i = 0; i < length; i++) {
+        const cell = randomCell(colorLength);
 
         row.push(cell);
     }
@@ -194,8 +194,8 @@ function randomCell(length) {
 }
 
 function drawBoard(parentElement, board) {
-    var boardElement = drawElement(parentElement, "board");
-    var rowsElement = drawElement(boardElement, "rows");
+    const boardElement = drawElement(parentElement, "board");
+    const rowsElement = drawElement(boardElement, "rows");
 
     board.forEach(function (row) {
         drawRow(rowsElement, row);
@@ -204,10 +204,10 @@ function drawBoard(parentElement, board) {
     return boardElement;
 }
 function drawRow(parentElement, row) {
-    var rowElement = drawElement(parentElement, "row");
-    var cellsElement = drawElement(rowElement, "cells");
+    const rowElement = drawElement(parentElement, "row");
+    const cellsElement = drawElement(rowElement, "cells");
 
-    for (var i = 0; i < rowLength; i++) {
+    for (let i = 0; i < rowLength; i++) {
         drawCell(cellsElement, row.cells[i]);
     }
 
@@ -218,9 +218,9 @@ function drawRow(parentElement, row) {
     return rowElement;
 }
 function drawScore(parentElement, score) {
-    var scoreElement = drawElement(parentElement, "score");
+    const scoreElement = drawElement(parentElement, "score");
 
-    for (var i = 0; i < rowLength; i++) {
+    for (let i = 0; i < rowLength; i++) {
         if (i < score.color) {
             drawElement(scoreElement, "color");
         } else if (i - score.color < score.position) {
@@ -233,12 +233,12 @@ function drawScore(parentElement, score) {
     return scoreElement;
 }
 function drawCell(parentElement, cell) {
-    var cellElement = drawElement(parentElement, "cell");
+    const cellElement = drawElement(parentElement, "cell");
 
     if (cell !== undefined) cellElement.dataset.color = cell;
 }
 function drawElement(parentElement, className) {
-    var resultElement = document.createElement("div");
+    const resultElement = document.createElement("div");
 
     if (parentElement) {
         parentElement.appendChild(resultElement);
@@ -252,7 +252,7 @@ function drawElement(parentElement, className) {
 }
 
 function clearBoard() {
-    var boardElement = document.querySelector(".board");
+    const boardElement = document.querySelector(".board");
 
     if (boardElement) {
         boardElement.remove();
