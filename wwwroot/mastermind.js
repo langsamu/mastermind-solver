@@ -10,24 +10,28 @@ let slowMotion = false;
 
 let w;
 function workerMessage(e) {
-    if (slowMotion) {
-        queue.push(e.data);
-    } else {
-        mapping[e.data.name].apply(this, e.data.payload);
-    }
+    queue.push(e.data);
+    requestProcess();
 }
 
 let frame;
-function process() {
-    cancelAnimationFrame(frame);
-    if (slowMotion) {
+function requestProcess() {
+    if (!frame) {
         frame = requestAnimationFrame(process);
+    }
+}
+function process() {
+    frame = undefined;
 
-        const message = queue.shift();
-        if (message) {
-            mapping[message.name].apply(this, message.payload);
-        }
+    const messages = slowMotion ? queue.splice(0, 1) : queue.splice(0).filter(function (message, i, all) {
+        return message.name === "rowPushed" || i === all.length - 1;
+    });
+    messages.forEach(function (message) {
+        mapping[message.name].apply(this, message.payload);
+    });
 
+    if (queue.length) {
+        requestProcess();
     }
 }
 
@@ -99,7 +103,6 @@ function initializeGame(solver) {
     w = new Worker("worker.js");
     w.onmessage = workerMessage;
 
-    process();
     clearBoard();
     queue = [];
     candidateRow = undefined;
