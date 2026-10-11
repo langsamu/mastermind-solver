@@ -1,4 +1,4 @@
-﻿const mapping = { "solveConstructive": solveConstructive, "solveSerial": solveSerial };
+﻿const mapping = { "solveConstructive": solveConstructive, "solveSerial": solveSerial, "solveRandom": solveRandom };
 
 this.onmessage = function (e) {
     mapping[e.data.name].apply(this, e.data.payload);
@@ -35,6 +35,16 @@ function solveSerial(board, solution, colorLength, rowLength) {
         }
     }
 }
+function solveRandom(board, solution, colorLength, rowLength) {
+    let done = false;
+    while (!done) {
+        const row = randomRow(rowLength, colorLength);
+
+        const rowScore = createAndScore(board, row, solution);
+
+        done = rowScore.position === rowLength;
+    }
+}
 
 function createAndScore(board, cells, solution) {
     const row = { cells: cells, score: scoreRow(cells, solution) };
@@ -61,6 +71,20 @@ function padLeft(original, targetLength, padString) {
     const tooLongString = stringOfLength + original;
 
     return tooLongString.slice(-targetLength)
+}
+function randomRow(length, colorLength) {
+    const row = [];
+
+    for (let i = 0; i < length; i++) {
+        const cell = randomCell(colorLength);
+
+        row.push(cell);
+    }
+
+    return row;
+}
+function randomCell(length) {
+    return Math.floor(Math.random() * length);
 }
 
 function getNextThesis(thesis, rowLength, colorLength, board) {

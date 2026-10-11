@@ -76,6 +76,9 @@ function initializeControls() {
     document.getElementById("runLinearButton").addEventListener("click", function () {
         initializeGame("solveSerial");
     });
+    document.getElementById("runRandomButton").addEventListener("click", function () {
+        initializeGame("solveRandom");
+    });
 
     document.getElementById("colorSelector").addEventListener("change", colorChanged);
     colorChanged();
@@ -127,17 +130,6 @@ function layoutChanged() {
 }
 function slowMotionChanged() {
     document.body.dataset.x = document.getElementById("slowMotionCheckbox").checked;
-}
-
-function solveRandom(board, solution, colorLength, rowLength) {
-    let done = false;
-    while (!done) {
-        const row = randomRow(rowLength, colorLength);
-
-        const rowScore = createAndScore(board, row, solution);
-
-        done = rowScore.position === rowLength;
-    }
 }
 
 
