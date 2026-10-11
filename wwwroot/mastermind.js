@@ -67,10 +67,7 @@ function load() {
 var rowLength = 5;
 var colorLength = 8;
 function initializeControls() {
-    var buttons = document.querySelectorAll("button.dynamic");
-    buttons.forEach(function (button) {
-        button.addEventListener("click", dynamicButtonClicked);
-    });
+    document.getElementById("runButton").addEventListener("click", initializeGame);
 
     var selectors = document.querySelectorAll("select.dynamic");
     selectors.forEach(function (selector) {
@@ -117,13 +114,6 @@ function initializeGame() {
     //solveRandom(board, solution, colorLength, rowLength);
 }
 
-function dynamicButtonClicked(e) {
-    var button = e.target;
-    var name = button.dataset.name;
-    var handler = window[name];
-
-    handler.call(e);
-}
 function dynamicSelectorChanged(e) {
     var selector = e.target;
     var value = selector.value;
