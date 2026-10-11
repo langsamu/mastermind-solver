@@ -74,6 +74,9 @@ function initializeControls() {
 
     document.getElementById("layoutSelector").addEventListener("change", layoutChanged);
     layoutChanged();
+
+    document.getElementById("slowMotionCheckbox").addEventListener("change", slowMotionChanged);
+    slowMotionChanged();
 }
 function initializeGame() {
     process();
@@ -113,6 +116,9 @@ function colorChanged() {
 }
 function layoutChanged() {
     document.body.dataset.layout = document.getElementById("layoutSelector").value;
+}
+function slowMotionChanged() {
+    document.body.dataset.x = document.getElementById("slowMotionCheckbox").checked;
 }
 
 function solveSerial(board, solution, colorLength, rowLength) {
