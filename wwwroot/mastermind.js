@@ -69,11 +69,11 @@ var colorLength = 8;
 function initializeControls() {
     document.getElementById("runButton").addEventListener("click", initializeGame);
 
-    var selectors = document.querySelectorAll("select.dynamic");
-    selectors.forEach(function (selector) {
-        selector.addEventListener("change", dynamicSelectorChanged);
-        selector.dispatchEvent(new Event("change"));
-    });
+    document.getElementById("colorSelector").addEventListener("change", colorChanged);
+    colorChanged();
+
+    document.getElementById("layoutSelector").addEventListener("change", layoutChanged);
+    layoutChanged();
 
     var checks = document.querySelectorAll("input.dynamic");
     checks.forEach(function (selector) {
@@ -114,12 +114,11 @@ function initializeGame() {
     //solveRandom(board, solution, colorLength, rowLength);
 }
 
-function dynamicSelectorChanged(e) {
-    var selector = e.target;
-    var value = selector.value;
-    var name = selector.dataset.name;
-
-    document.body.dataset[name] = value;
+function colorChanged() {
+    document.body.dataset.color = document.getElementById("colorSelector").value;
+}
+function layoutChanged() {
+    document.body.dataset.layout = document.getElementById("layoutSelector").value;
 }
 function dynamicCheckboxChanged(e) {
     var selector = e.target;
