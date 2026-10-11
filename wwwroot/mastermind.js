@@ -74,12 +74,6 @@ function initializeControls() {
 
     document.getElementById("layoutSelector").addEventListener("change", layoutChanged);
     layoutChanged();
-
-    var checks = document.querySelectorAll("input.dynamic");
-    checks.forEach(function (selector) {
-        selector.addEventListener("change", dynamicCheckboxChanged);
-        selector.dispatchEvent(new Event("change"));
-    });
 }
 function initializeGame() {
     process();
@@ -119,14 +113,6 @@ function colorChanged() {
 }
 function layoutChanged() {
     document.body.dataset.layout = document.getElementById("layoutSelector").value;
-}
-function dynamicCheckboxChanged(e) {
-    var selector = e.target;
-    var value = selector.checked;
-    var name = selector.dataset.name;
-
-    document.body.dataset[name] = value;
-    console.log(value);
 }
 
 function solveSerial(board, solution, colorLength, rowLength) {
