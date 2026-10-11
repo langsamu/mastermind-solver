@@ -7,14 +7,14 @@ const mapping = {
 
 let queue = [];
 
-const w = new Worker("worker.js");
-w.onmessage = function (e) {
+let w;
+function workerMessage(e) {
     if (document.body.dataset.x === "true") {
         queue.push(e.data);
     } else {
         mapping[e.data.name].apply(this, e.data.payload);
     }
-};
+}
 
 function process() {
     if (document.body.dataset.x === "true") {
@@ -90,9 +90,16 @@ function initializeControls() {
     slowMotionChanged();
 }
 function initializeGame(solver) {
+    if (w) {
+        w.terminate();
+    }
+    w = new Worker("worker.js");
+    w.onmessage = workerMessage;
+
     process();
     clearBoard();
     queue = [];
+    fake = undefined;
 
     const solution = randomRow(rowLength, colorLength);
     //var solution = [1, 6, 0, 7, 6]; // Bence 20170123T2054
