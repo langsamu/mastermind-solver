@@ -43,7 +43,11 @@ function thesis(row) {
         var a = fake.childNodes[0].childNodes;
         var b = fake.childNodes[1].childNodes;
         for (var i = 0; i < rowLength; i++) {
-            a[i].dataset.color = row.cells[i];
+            if (row.cells[i] === undefined) {
+                delete a[i].dataset.color;
+            } else {
+                a[i].dataset.color = row.cells[i];
+            }
 
             if (i < row.score.color) {
                 b[i].className = "color";
