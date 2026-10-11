@@ -58,11 +58,11 @@ body {
 }
 
 .score .color {
-    background-color: black;
+    background-color: white;
 }
 
 .score .position {
-    background-color: white;
+    background-color: black;
 }
 
 [data-color="black-white"] {
